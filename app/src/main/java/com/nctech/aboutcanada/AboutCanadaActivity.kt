@@ -1,12 +1,14 @@
 package com.nctech.aboutcanada
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 
 class AboutCanadaActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        supportFragmentManager.beginTransaction().add(R.id.fragment_layout, AboutCanadaFragment())
+            .commit()
     }
 }
