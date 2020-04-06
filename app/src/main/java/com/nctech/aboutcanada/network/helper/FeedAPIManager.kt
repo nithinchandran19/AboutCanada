@@ -15,28 +15,27 @@ class FeedAPIManager : FeedRequests {
 
 
     private val url = "https://dl.dropboxusercontent.com/s/2iodh4vg0eortkl/facts.json"
-    private val liveData: MutableLiveData<Feed> = MutableLiveData()
+    private val feedLiveData: MutableLiveData<Feed> = MutableLiveData()
 
 
     fun getInstance(): FeedAPIManager {
         return FeedAPIManager()
     }
 
-    override fun getLatestFeed(): MutableLiveData<Feed> {
+    override fun getLatestFeed(observer: ResponseObserver): MutableLiveData<Feed> {
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.GET, url, null,
             Response.Listener { response ->
-                liveData.value = Gson().fromJson(response.toString(), Feed::class.java)
-
+                observer.onResponse(Gson().fromJson(response.toString(), Feed::class.java))
             },
             Response.ErrorListener { error ->
-                error.message
+                observer.onError(error)
             }
         )
 
         // Access the RequestQueue through your singleton class.
         RequestQueueHelper.getInstance(CoreManager.getContext())
             ?.addToRequestQueue(jsonObjectRequest)
-        return liveData
+        return feedLiveData
     }
 }

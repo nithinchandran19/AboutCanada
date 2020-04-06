@@ -1,5 +1,6 @@
 package com.nctech.aboutcanada
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -46,14 +47,41 @@ class AboutCanadaFragment : Fragment() {
         list_view.setHasFixedSize(true)
         list_view.adapter = adapter
         viewModel.getLatestData()
+        showHideProgress(true)
 
         viewModel.feedData.observe(viewLifecycleOwner, Observer(fun(it: Feed?) {
             if (it != null) {
+                showHideProgress(false)
                 listData.addAll(it.rows)
                 adapter.notifyDataSetChanged()
             }
         }))
+        viewModel.error.observe(viewLifecycleOwner, Observer {
+            showHideProgress(false)
+            showAlert(
+                getString(R.string.Error),
+                it?.message
+            )
+        })
         swipe_refresh.setOnRefreshListener { update() }
+    }
+
+    private fun showHideProgress(show: Boolean) {
+        if (show) progressBar.visibility = View.VISIBLE else progressBar.visibility = View.GONE
+    }
+
+    private fun showAlert(title: String, message: String?) {
+        AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(
+                R.string.retry
+            ) { dialog, which ->
+                viewModel.getLatestData()
+            }
+            .setNegativeButton(android.R.string.no, null)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .show()
     }
 
     private fun update() {
